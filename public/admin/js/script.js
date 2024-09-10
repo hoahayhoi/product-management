@@ -21,3 +21,5 @@ if(boxFilter) {
     boxFilter.value = statusCurrent;
   }
 }
+
+

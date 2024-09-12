@@ -1,5 +1,4 @@
 const Product = require("../../models/product.model");
-const productModel = require("../../models/product.model");
 
 module.exports.index = async (req, res) => {
     // Search default
@@ -22,12 +21,33 @@ module.exports.index = async (req, res) => {
 
     // End Search  
 
-    const products = await productModel.find(find);
+    // Start Pagination
+    let limitItems = 4;
+    let page = 1;
+  
+    if(req.query.page) {
+      page = parseInt(req.query.page);
+    }
+  
+    if(req.query.limit) {
+      limitItems = parseInt(req.query.limit);
+    }
+  
+    const skip = (page - 1) * limitItems;
+  
+    const totalProduct = await Product.countDocuments(find);
+    const totalPage = Math.ceil(totalProduct/limitItems);
+    // End pagination
 
-    console.log(products);
+    // Query
+    const products = await Product.find(find).limit(limitItems).skip(skip); // ***
+
 
     res.render("admin/pages/products/index", {
         pageTitle: "Danh sách sản phẩm",
-        products
+        products: products, 
+        totalPage: totalPage,
+        currentPage: page
     });
 }
+

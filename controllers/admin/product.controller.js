@@ -52,6 +52,7 @@ module.exports.index = async (req, res) => {
     });
 }
 
+// Change status
 module.exports.changeStatus = async (req, res) => {
     await Product.updateOne({
         _id: req.body.id
@@ -64,3 +65,20 @@ module.exports.changeStatus = async (req, res) => {
         mesage: "Đổi trạng thái thành công!"
     });
 }
+// End change status
+
+// Change status multi
+module.exports.changeMulti = async (req, res) => {
+    await Product.updateMany({
+        _id: req.body.ids
+    }, {
+        status: req.body.status
+    });
+
+    res.json({
+        code: "success",
+        message: "Đổi trạng thái thành công"
+    })
+}
+// End change status multi
+

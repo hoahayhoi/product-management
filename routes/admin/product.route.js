@@ -10,6 +10,8 @@ router.patch("/change-status", controller.changeStatus);
 
 router.patch("/change-multi", controller.changeMulti);
 
+router.delete("/delete", controller.delete);
+
 module.exports = router;
 
 

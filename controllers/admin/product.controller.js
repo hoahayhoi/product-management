@@ -43,6 +43,7 @@ module.exports.index = async (req, res) => {
     const products = await Product.find(find).limit(limitItems).skip(skip); // ***
 
 
+
     res.render("admin/pages/products/index", {
         pageTitle: "Danh sách sản phẩm",
         products: products, 
@@ -51,3 +52,15 @@ module.exports.index = async (req, res) => {
     });
 }
 
+module.exports.changeStatus = async (req, res) => {
+    await Product.updateOne({
+        _id: req.body.id
+    }, {
+        status: req.body.status
+    });
+
+    res.json({
+        code: "success", 
+        mesage: "Đổi trạng thái thành công!"
+    });
+}

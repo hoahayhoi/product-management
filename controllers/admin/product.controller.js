@@ -82,13 +82,24 @@ module.exports.changeMulti = async (req, res) => {
 }
 // End change status multi
 
-// Delete permanent 
+// // Delete permanent 
+// module.exports.delete = async (req, res) => {
+//     await Product.deleteOne({_id: req.body.id});
+
+//     res.json({
+//         code: "success", 
+//         mesage: "Xoá vĩnh viễn thành công!"
+//     }); 
+// }
+// // End delete permanent 
+
+// Delete softly
 module.exports.delete = async (req, res) => {
-    await Product.deleteOne({_id: req.body.id});
+    await Product.updateOne({_id: req.body.id}, {deleted: true});
 
     res.json({
         code: "success", 
-        mesage: "Xoá vĩnh viễn thành công!"
+        mesage: "Xoá mềm thành công!"
     }); 
 }
-// End delete permanent 
+// End delete softly

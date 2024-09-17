@@ -9,6 +9,7 @@ router.get("/", controller.index);
 router.patch("/change-status", controller.changeStatus);
 
 router.patch("/change-multi", controller.changeMulti);
+router.patch("/change-position", controller.changePosition);
 
 router.patch("/delete", controller.delete);
 

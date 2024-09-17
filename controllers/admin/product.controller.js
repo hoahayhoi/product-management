@@ -40,7 +40,10 @@ module.exports.index = async (req, res) => {
     // End pagination
 
     // Query
-    const products = await Product.find(find).limit(limitItems).skip(skip); // ***
+    const products = await Product.find(find)
+        .limit(limitItems)
+        .skip(skip)
+        .sort({position: 'desc'}); 
 
 
     res.render("admin/pages/products/index", {
@@ -49,6 +52,20 @@ module.exports.index = async (req, res) => {
         totalPage: totalPage,
         currentPage: page
     });
+}
+
+module.exports.changePosition = async (req, res) => {
+    if (!req.body) {
+        return res.json({code: 'error', message: 'Position not found!'});
+    }
+
+    await Product.updateOne({
+        _id: req.body.id
+    }, {
+        position: req.body.position
+    })
+
+    res.json({code: 'success', message: 'Change position successfully!'});
 }
 
 // Change status

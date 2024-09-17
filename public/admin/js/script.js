@@ -127,7 +127,7 @@ if(formChangeMulti) {
         return;
       }
     }
-    
+
     const ids = [];
 
     const listInputChangeChecked = document.querySelectorAll("[input-change]:checked");
@@ -190,3 +190,34 @@ if(listButtonDelete.length > 0) {
   })
 }
 // End delete permanent 
+
+
+// Change Position
+const listInputPosition = document.querySelectorAll("[input-position]");
+if(listInputPosition.length > 0) {
+  listInputPosition.forEach(input => {
+    input.addEventListener("change", () => {
+      const position = parseInt(input.value);
+      const id = input.getAttribute("item-id");
+      const path = input.getAttribute("data-path");
+
+      fetch(path, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PATCH",
+        body: JSON.stringify({
+          id: id,
+          position: position
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if(data.code == "success") {
+            location.reload();
+          }
+        })
+    })
+  })
+}
+// End change postion

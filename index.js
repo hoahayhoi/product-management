@@ -1,5 +1,8 @@
 const express = require("express");
 const bodyParser = require('body-parser')
+const flash = require('express-flash');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
 require('dotenv').config();
 const systemConfig = require("./config/system");
 
@@ -21,7 +24,13 @@ app.use(express.static('public')); // Thiết lập thư mục chứa file tĩnh
 app.locals.prefixAdmin = systemConfig.prefixAdmin;
 
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(cookieParser('MINHHOA-FLASH'));
+app.use(session({ cookie: { maxAge: 60000 }}));
+app.use(flash());
 
 routeClient(app);
 routeAdmin(app);

@@ -43,7 +43,6 @@ module.exports.index = async (req, res) => {
     const products = await Product.find(find).limit(limitItems).skip(skip); // ***
 
 
-
     res.render("admin/pages/products/index", {
         pageTitle: "Danh sách sản phẩm",
         products: products, 
@@ -69,16 +68,34 @@ module.exports.changeStatus = async (req, res) => {
 
 // Change status multi
 module.exports.changeMulti = async (req, res) => {
-    await Product.updateMany({
-        _id: req.body.ids
-    }, {
-        status: req.body.status
-    });
-
-    res.json({
-        code: "success",
-        message: "Đổi trạng thái thành công"
-    })
+    switch (req.body.status) {
+        case 'active':
+        case 'inactive':
+            await Product.updateMany({
+                _id: req.body.ids
+            }, {
+                status: req.body.status
+            });
+            res.json({
+                code: 'success',
+                message: 'Change status succcessfully!'
+            });
+            break;
+        case 'delete':
+            await Product.updateMany({
+                _id: req.body.ids
+            }, {
+                deleted: true
+            })
+            res.json({code: 'success', message: "Delete successfully!"});
+            break;
+        default:
+            res.json({
+                code: 'error',
+                message: 'Invalid status!'
+            })
+            break;
+    }
 }
 // End change status multi
 

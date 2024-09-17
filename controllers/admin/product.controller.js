@@ -1,5 +1,33 @@
 const Product = require("../../models/product.model");
 
+module.exports.create = async (req, res) => {
+    res.render("admin/pages/products/create", {
+        pageTitle: "Thêm mới sản phẩm"
+    });
+}
+
+module.exports.createPost = async (req, res) => {
+    if (!req.body) {
+        return res.json({code: 'error', message: 'Data not found!'});
+    }
+
+    const productData = {
+        title: req.body.title,
+        description: req.body.description,
+        price: req.body.price ? parseFloat(req.body.price) : 0, 
+        discountPercentage: req.body.discountPercentage ? parseFloat(req.body.discountPercentage) : 0, 
+        stock: req.body.stock ? parseInt(req.body.stock) : 0, 
+        thumbnail: req.body.thumbnail,
+        status: req.body.status,
+        position: req.body.position ? parseInt(req.body.position) : 0, 
+        deleted: req.body.deleted ? (req.body.deleted === 'true' || req.body.deleted === true) : false 
+    };
+
+    await Product.create(productData);
+    req.flash('success', 'Tạo mới thành công!');
+    return res.status(201).json({ code: 'success', message: 'Product created successfully!'});
+}
+
 module.exports.index = async (req, res) => {
     // Search default
     const find = {
@@ -14,7 +42,7 @@ module.exports.index = async (req, res) => {
 
     // Search
 
-    if(req.query.keyword){
+    if (req.query.keyword) {
         const regex = new RegExp(req.query.keyword, "i");
         find.title = regex;
     }
@@ -24,31 +52,31 @@ module.exports.index = async (req, res) => {
     // Start Pagination
     let limitItems = 4;
     let page = 1;
-  
-    if(req.query.page) {
-      page = parseInt(req.query.page);
+
+    if (req.query.page) {
+        page = parseInt(req.query.page);
     }
-  
-    if(req.query.limit) {
-      limitItems = parseInt(req.query.limit);
+
+    if (req.query.limit) {
+        limitItems = parseInt(req.query.limit);
     }
-  
+
     const skip = (page - 1) * limitItems;
-  
+
     const totalProduct = await Product.countDocuments(find);
-    const totalPage = Math.ceil(totalProduct/limitItems);
+    const totalPage = Math.ceil(totalProduct / limitItems);
     // End pagination
 
     // Query
     const products = await Product.find(find)
         .limit(limitItems)
         .skip(skip)
-        .sort({position: 'desc'}); 
+        .sort({ position: 'desc' });
 
 
     res.render("admin/pages/products/index", {
         pageTitle: "Danh sách sản phẩm",
-        products: products, 
+        products: products,
         totalPage: totalPage,
         currentPage: page
     });
@@ -56,7 +84,7 @@ module.exports.index = async (req, res) => {
 
 module.exports.changePosition = async (req, res) => {
     if (!req.body) {
-        return res.json({code: 'error', message: 'Position not found!'});
+        return res.json({ code: 'error', message: 'Position not found!' });
     }
 
     await Product.updateOne({
@@ -66,7 +94,7 @@ module.exports.changePosition = async (req, res) => {
     })
 
     req.flash('success', 'Đổi vị trí thành công!');
-    res.json({code: 'success', message: 'Change position successfully!'});
+    res.json({ code: 'success', message: 'Change position successfully!' });
 }
 
 // Change status
@@ -80,7 +108,7 @@ module.exports.changeStatus = async (req, res) => {
 
     req.flash('success', 'Đổi trạng thái thành công!');
     res.json({
-        code: "success", 
+        code: "success",
         mesage: "Đổi trạng thái thành công!"
     });
 }
@@ -109,7 +137,7 @@ module.exports.changeMulti = async (req, res) => {
                 deleted: true
             })
             req.flash('success', 'Xoá thành công!');
-            res.json({code: 'success', message: "Delete successfully!"});
+            res.json({ code: 'success', message: "Delete successfully!" });
             break;
         default:
             res.json({
@@ -134,13 +162,13 @@ module.exports.changeMulti = async (req, res) => {
 
 // Delete softly
 module.exports.delete = async (req, res) => {
-    await Product.updateOne({_id: req.body.id}, {deleted: true});
+    await Product.updateOne({ _id: req.body.id }, { deleted: true });
 
 
     req.flash('success', 'Xoá thành công!');
     res.json({
-        code: "success", 
+        code: "success",
         mesage: "Xoá mềm thành công!"
-    }); 
+    });
 }
 // End delete softly

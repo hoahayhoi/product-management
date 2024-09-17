@@ -65,6 +65,7 @@ module.exports.changePosition = async (req, res) => {
         position: req.body.position
     })
 
+    req.flash('success', 'Đổi vị trí thành công!');
     res.json({code: 'success', message: 'Change position successfully!'});
 }
 
@@ -76,6 +77,8 @@ module.exports.changeStatus = async (req, res) => {
         status: req.body.status
     });
 
+
+    req.flash('success', 'Đổi trạng thái thành công!');
     res.json({
         code: "success", 
         mesage: "Đổi trạng thái thành công!"
@@ -93,6 +96,7 @@ module.exports.changeMulti = async (req, res) => {
             }, {
                 status: req.body.status
             });
+            req.flash('success', 'Đổi trạng thái thành công!');
             res.json({
                 code: 'success',
                 message: 'Change status succcessfully!'
@@ -104,6 +108,7 @@ module.exports.changeMulti = async (req, res) => {
             }, {
                 deleted: true
             })
+            req.flash('success', 'Xoá thành công!');
             res.json({code: 'success', message: "Delete successfully!"});
             break;
         default:
@@ -131,6 +136,8 @@ module.exports.changeMulti = async (req, res) => {
 module.exports.delete = async (req, res) => {
     await Product.updateOne({_id: req.body.id}, {deleted: true});
 
+
+    req.flash('success', 'Xoá thành công!');
     res.json({
         code: "success", 
         mesage: "Xoá mềm thành công!"

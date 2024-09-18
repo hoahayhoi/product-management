@@ -1,4 +1,5 @@
 const Product = require("../../models/product.model");
+const systemConfig = require("../../config/system");
 
 module.exports.create = async (req, res) => {
     res.render("admin/pages/products/create", {
@@ -9,6 +10,15 @@ module.exports.create = async (req, res) => {
 module.exports.createPost = async (req, res) => {
     if (!req.body) {
         return res.json({code: 'error', message: 'Data not found!'});
+    }
+
+    if (req.file) {
+        req.body.thumbnail = req.file.filename;
+    }
+
+    if (!req.body.position) {
+        const countRecords = await Product.countDocuments();
+        req.body.position = countRecords + 1;
     }
 
     const productData = {
@@ -25,7 +35,7 @@ module.exports.createPost = async (req, res) => {
 
     await Product.create(productData);
     req.flash('success', 'Tạo mới thành công!');
-    return res.status(201).json({ code: 'success', message: 'Product created successfully!'});
+    res.redirect(`/${systemConfig.prefixAdmin}/products`);
 }
 
 module.exports.index = async (req, res) => {

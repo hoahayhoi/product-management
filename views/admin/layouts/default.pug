@@ -22,6 +22,12 @@ html
         class="alert alert-success alert-message"
         alert-message
       ) #{messages.success}        
+    - if (messages.error)
+      div(
+        class="alert alert-danger alert-message"
+        alert-message
+      ) #{messages.error}
+
 
     script(src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js") 
     script(src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js")

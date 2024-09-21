@@ -9,7 +9,7 @@ module.exports.create = async (req, res) => {
 
 module.exports.createPost = async (req, res) => {
     if (!req.body) {
-        return res.json({code: 'error', message: 'Data not found!'});
+        return res.json({ code: 'error', message: 'Data not found!' });
     }
 
     if (req.file) {
@@ -24,13 +24,13 @@ module.exports.createPost = async (req, res) => {
     const productData = {
         title: req.body.title,
         description: req.body.description,
-        price: req.body.price ? parseFloat(req.body.price) : 0, 
-        discountPercentage: req.body.discountPercentage ? parseFloat(req.body.discountPercentage) : 0, 
-        stock: req.body.stock ? parseInt(req.body.stock) : 0, 
+        price: req.body.price ? parseFloat(req.body.price) : 0,
+        discountPercentage: req.body.discountPercentage ? parseFloat(req.body.discountPercentage) : 0,
+        stock: req.body.stock ? parseInt(req.body.stock) : 0,
         thumbnail: req.body.thumbnail,
         status: req.body.status,
-        position: req.body.position ? parseInt(req.body.position) : 0, 
-        deleted: req.body.deleted ? (req.body.deleted === 'true' || req.body.deleted === true) : false 
+        position: req.body.position ? parseInt(req.body.position) : 0,
+        deleted: req.body.deleted ? (req.body.deleted === 'true' || req.body.deleted === true) : false
     };
 
     await Product.create(productData);
@@ -182,3 +182,39 @@ module.exports.delete = async (req, res) => {
     });
 }
 // End delete softly
+
+// edit product change page
+module.exports.edit = async (req, res) => {
+    const id = req.params.id;
+    const product = await Product.findOne({
+        _id: id,
+        deleted: false
+    });
+    res.render("admin/pages/products/edit", {
+        pageTitle: "Chỉnh sửa sản phẩm",
+        product: product
+    });
+}
+// End edit product change page
+
+// Edit 
+module.exports.editPatch = async (req, res) => {
+    const id = req.params.id;
+    req.body.price = parseInt(req.body.price);
+    req.body.discountPercentage = parseInt(req.body.discountPercentage);
+    req.body.stock = parseInt(req.body.stock);
+    if (req.body.position) {
+        req.body.position = parseInt(req.body.position);
+    }
+    if (req.file) {
+        req.body.thumbnail = `/uploads/${req.file.filename}`;
+    }
+    await Product.updateOne({
+        _id: id,
+        deleted: false
+    }, req.body);
+    req.flash("success", "Cập nhật thành công!");
+    res.redirect("back");
+}
+
+// End edit

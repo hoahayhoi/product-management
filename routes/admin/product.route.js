@@ -28,6 +28,15 @@ router.patch("/change-status", controller.changeStatus);
 router.patch("/change-multi", controller.changeMulti);
 router.patch("/change-position", controller.changePosition);
 
+router.get("/edit/:id", controller.edit);
+
+router.patch(
+  "/edit/:id",
+  upload.single('thumbnail'),
+  validate.createPost,
+  controller.editPatch
+);
+
 router.patch("/delete", controller.delete);
 
 module.exports = router;

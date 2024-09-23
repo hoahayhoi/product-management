@@ -13,13 +13,14 @@ module.exports.createPost = async (req, res) => {
     }
 
     if (req.file) {
-        req.body.thumbnail = req.file.filename;
+        req.body.thumbnail = `/uploads/${req.file.filename}`;
     }
 
     if (!req.body.position) {
         const countRecords = await Product.countDocuments();
         req.body.position = countRecords + 1;
     }
+
 
     const productData = {
         title: req.body.title,

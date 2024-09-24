@@ -12,15 +12,11 @@ module.exports.createPost = async (req, res) => {
         return res.json({ code: 'error', message: 'Data not found!' });
     }
 
-    if (req.file) {
-        req.body.thumbnail = `/uploads/${req.file.filename}`;
-    }
 
     if (!req.body.position) {
         const countRecords = await Product.countDocuments();
         req.body.position = countRecords + 1;
     }
-
 
     const productData = {
         title: req.body.title,
@@ -206,9 +202,6 @@ module.exports.editPatch = async (req, res) => {
     req.body.stock = parseInt(req.body.stock);
     if (req.body.position) {
         req.body.position = parseInt(req.body.position);
-    }
-    if (req.file) {
-        req.body.thumbnail = `/uploads/${req.file.filename}`;
     }
     await Product.updateOne({
         _id: id,

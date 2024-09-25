@@ -4,6 +4,7 @@ const flash = require('express-flash');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const methodOverride = require('method-override');
+const path = require('path');
 require('dotenv').config();
 const systemConfig = require("./config/system");
 
@@ -36,6 +37,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser('MINHHOA-FLASH'));
 app.use(session({ cookie: { maxAge: 60000 }}));
 app.use(flash());
+
+// TinyMCE
+app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce')));
 
 routeClient(app);
 routeAdmin(app);

@@ -74,11 +74,21 @@ module.exports.index = async (req, res) => {
     const totalPage = Math.ceil(totalProduct / limitItems);
     // End pagination
 
+    // Sort 
+    const sort = {};
+    if (req.query.sortKey && req.query.sortValue) {
+        const sortKey = req.query.sortKey;
+        const sortValue = req.query.sortValue;
+
+        sort[sortKey] = sortValue;
+    }
+    // End sort 
+
     // Query
     const products = await Product.find(find)
         .limit(limitItems)
         .skip(skip)
-        .sort({ position: 'desc' });
+        .sort(sort);
 
 
     res.render("admin/pages/products/index", {

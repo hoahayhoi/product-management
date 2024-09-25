@@ -1,13 +1,13 @@
 // Filter
 const boxFilter = document.querySelector("[box-filter]");
-if(boxFilter) {
+if (boxFilter) {
   let url = new URL(location.href); // Nhân bản url
 
   // Bắt sự kiện onChange
   boxFilter.addEventListener("change", () => {
     const value = boxFilter.value;
-    
-    if(value) {
+
+    if (value) {
       url.searchParams.set("status", value);
     } else {
       url.searchParams.delete("status");
@@ -18,7 +18,7 @@ if(boxFilter) {
 
   // Hiển thị lựa chọn mặc định
   const statusCurrent = url.searchParams.get("status");
-  if(statusCurrent) {
+  if (statusCurrent) {
     boxFilter.value = statusCurrent;
   }
 }
@@ -26,14 +26,14 @@ if(boxFilter) {
 
 // Search
 const formSearch = document.querySelector("[form-search]");
-if(formSearch) {
+if (formSearch) {
   let url = new URL(location.href); // Nhân bản url
 
   formSearch.addEventListener("submit", (event) => {
     event.preventDefault(); // Ngăn chặn hành vi mặc định: submit form
     const value = formSearch.keyword.value;
-    
-    if(value) {
+
+    if (value) {
       url.searchParams.set("keyword", value);
     } else {
       url.searchParams.delete("keyword");
@@ -44,7 +44,7 @@ if(formSearch) {
 
   // Hiển thị từ khóa mặc định
   const valueCurrent = url.searchParams.get("keyword");
-  if(valueCurrent) {
+  if (valueCurrent) {
     formSearch.keyword.value = valueCurrent;
   }
 }
@@ -52,19 +52,19 @@ if(formSearch) {
 
 // Pagination
 const listButtonPagination = document.querySelectorAll("[button-pagination]");
-if(listButtonPagination.length > 0) {
+if (listButtonPagination.length > 0) {
   let url = new URL(location.href); // Nhân bản url
 
   listButtonPagination.forEach(button => {
     button.addEventListener("click", () => {
       const page = button.getAttribute("button-pagination");
 
-      if(page) {
+      if (page) {
         url.searchParams.set("page", page);
       } else {
         url.searchParams.delete("page");
       }
-  
+
       location.href = url.href;
     })
   })
@@ -72,7 +72,7 @@ if(listButtonPagination.length > 0) {
   // Hiển thị trang mặc định
   const pageCurrent = url.searchParams.get("page") || 1;
   const buttonCurrent = document.querySelector(`[button-pagination="${pageCurrent}"]`);
-  if(buttonCurrent) {
+  if (buttonCurrent) {
     buttonCurrent.parentNode.classList.add("active");
   }
 }
@@ -80,7 +80,7 @@ if(listButtonPagination.length > 0) {
 
 // Change status 
 const listButtonChangeStatus = document.querySelectorAll("[button-change-status]");
-if(listButtonChangeStatus.length > 0) {
+if (listButtonChangeStatus.length > 0) {
   listButtonChangeStatus.forEach(button => {
     button.addEventListener("click", () => {
       const itemId = button.getAttribute("item-id");
@@ -101,7 +101,7 @@ if(listButtonChangeStatus.length > 0) {
       })
         .then(res => res.json())
         .then(data => {
-          if(data.code == "success") {
+          if (data.code == "success") {
             location.reload();
           }
         })
@@ -113,7 +113,7 @@ if(listButtonChangeStatus.length > 0) {
 
 // Change multi product status
 const formChangeMulti = document.querySelector("[form-change-multi]");
-if(formChangeMulti) {
+if (formChangeMulti) {
   formChangeMulti.addEventListener("submit", (event) => {
     event.preventDefault();
 
@@ -121,9 +121,9 @@ if(formChangeMulti) {
 
     const status = formChangeMulti.status.value;
 
-    if(status == "delete") {
+    if (status == "delete") {
       const isConfirm = confirm("Bạn có chắc muốn xóa những bản ghi này?");
-      if(!isConfirm) {
+      if (!isConfirm) {
         return;
       }
     }
@@ -150,7 +150,7 @@ if(formChangeMulti) {
     })
       .then(res => res.json())
       .then(data => {
-        if(data.code == "success") {
+        if (data.code == "success") {
           location.reload();
         }
       })
@@ -161,12 +161,12 @@ if(formChangeMulti) {
 
 // Delete permanent 
 const listButtonDelete = document.querySelectorAll("[button-delete]");
-if(listButtonDelete.length > 0) {
+if (listButtonDelete.length > 0) {
   listButtonDelete.forEach(button => {
     button.addEventListener("click", () => {
       const isConfirm = confirm("Bạn có chắc muốn xóa bản ghi này?");
 
-      if(isConfirm) {
+      if (isConfirm) {
         const id = button.getAttribute("item-id");
         const path = button.getAttribute("data-path");
 
@@ -181,7 +181,7 @@ if(listButtonDelete.length > 0) {
         })
           .then(res => res.json())
           .then(data => {
-            if(data.code == "success") {
+            if (data.code == "success") {
               location.reload();
             }
           })
@@ -194,7 +194,7 @@ if(listButtonDelete.length > 0) {
 
 // Change Position
 const listInputPosition = document.querySelectorAll("[input-position]");
-if(listInputPosition.length > 0) {
+if (listInputPosition.length > 0) {
   listInputPosition.forEach(input => {
     input.addEventListener("change", () => {
       const position = parseInt(input.value);
@@ -213,7 +213,7 @@ if(listInputPosition.length > 0) {
       })
         .then(res => res.json())
         .then(data => {
-          if(data.code == "success") {
+          if (data.code == "success") {
             location.reload();
           }
         })
@@ -224,7 +224,7 @@ if(listInputPosition.length > 0) {
 
 // alert-message
 const alertMessage = document.querySelector("[alert-message]");
-if(alertMessage) {
+if (alertMessage) {
   setTimeout(() => {
     alertMessage.style.display = "none";
   }, 3000);
@@ -234,14 +234,44 @@ if(alertMessage) {
 
 // Preview ảnh
 const uploadImage = document.querySelector("[upload-image]");
-if(uploadImage) {
+if (uploadImage) {
   const uploadImageInput = uploadImage.querySelector("[upload-image-input]");
   const uploadImagePreview = uploadImage.querySelector("[upload-image-preview]");
   uploadImageInput.addEventListener("change", () => {
     const file = uploadImageInput.files[0];
-    if(file) {
+    if (file) {
       uploadImagePreview.src = URL.createObjectURL(file);
     }
   });
 }
 // Hết Preview ảnh
+
+
+// Sắp xếp
+const sortSelect = document.querySelector("[sort-select]");
+if (sortSelect) {
+  let url = new URL(location.href); // Nhân bản url
+  // Bắt sự kiện onChange
+  sortSelect.addEventListener("change", () => {
+    const value = sortSelect.value;
+
+    if (value) {
+      const [sortKey, sortValue] = value.split("-");
+      console.log(sortKey);
+      console.log(sortValue);
+      url.searchParams.set("sortKey", sortKey);
+      url.searchParams.set("sortValue", sortValue);
+    } else {
+      url.searchParams.delete("sortKey");
+      url.searchParams.delete("sortValue");
+    }
+    location.href = url.href;
+  })
+  
+  // Hiển thị lựa chọn mặc định
+  const sortKeyCurrent = url.searchParams.get("sortKey");
+  const sortValueCurrent = url.searchParams.get("sortValue");
+  if (sortKeyCurrent && sortValueCurrent) {
+    sortSelect.value = `${sortKeyCurrent}-${sortValueCurrent}`;
+  }
+}

@@ -206,9 +206,15 @@ module.exports.edit = async (req, res) => {
         _id: id,
         deleted: false
     });
+
+    const listCategory = await ProductCategory.find({
+        deleted: false
+    });
+
     res.render("admin/pages/products/edit", {
         pageTitle: "Chỉnh sửa sản phẩm",
-        product: product
+        product: product,
+        listCategory: listCategory
     });
 }
 // End edit product change page

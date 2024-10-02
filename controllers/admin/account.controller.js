@@ -34,7 +34,6 @@ module.exports.create = async (req, res) => {
     });
 }
 
-
 module.exports.createPost = async (req, res) => {
     req.body.password = md5(req.body.password);
     req.body.token = generateHelper.generateRandomString(30);
@@ -45,3 +44,26 @@ module.exports.createPost = async (req, res) => {
 
     res.redirect(`/${systemConfig.prefixAdmin}/accounts`);
 }
+
+module.exports.edit = async (req, res) => {
+    const roles = await RoleModel.find({
+      deleted: false
+    });
+    const account = await AccountModel.findOne({
+      _id: req.params.id,
+      deleted: false
+    });
+    res.render("admin/pages/accounts/edit", {
+      pageTitle: "Chỉnh sửa tài khoản quản trị",
+      roles: roles,
+      account: account
+    });
+  }
+  module.exports.editPatch = async (req, res) => {
+    await AccountModel.updateOne({
+      _id: req.params.id,
+      deleted: false
+    }, req.body);
+    req.flash("success", "Cập nhật thành công!");
+    res.redirect(`back`);
+  }

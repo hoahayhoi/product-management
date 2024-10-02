@@ -6,13 +6,21 @@ const generateHelper = require("../../helpers/generate.helper");
 const systemConfig = require("../../config/system");
 
 module.exports.index = async (req, res) => {
-    const accounts = await AccountModel.find({
+    const records  = await AccountModel.find({
         deleted: false
     });
 
+    for (const item of records ) {
+        const role = await RoleModel.findOne({
+          _id: item.role_id,
+          deleted: false
+        });
+        item.role_title = role.title;
+      }
+
     res.render("admin/pages/accounts/index", {
         pageTitle: "Tài khoản quản trị",
-        accounts
+        records 
     });
 }
 

@@ -17,7 +17,16 @@ const productSchema = new mongoose.Schema({
   thumbnail: String,
   status: String,
   position: Number,
-  deleted: Boolean
+  createdBy: String,
+  createdAt: Date,
+  updatedBy: String,
+  updatedAt: Date,
+  deleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedBy: String,
+  deletedAt: Date,
 });
 
 const Product = mongoose.model('Product', productSchema, 'products');

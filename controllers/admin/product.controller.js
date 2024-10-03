@@ -1,6 +1,9 @@
 const Product = require("../../models/product.model");
-const systemConfig = require("../../config/system");
 const ProductCategory = require("../../models/product-category.model");
+const Account = require("../../models/account.model");
+
+const systemConfig = require("../../config/system");
+const moment = require("moment");
 
 module.exports.create = async (req, res) => {
     const listCategory = await ProductCategory.find({
@@ -15,31 +18,25 @@ module.exports.create = async (req, res) => {
 }
 
 module.exports.createPost = async (req, res) => {
-    if (!req.body) {
-        return res.json({ code: 'error', message: 'Data not found!' });
+    if (res.locals.role.permissions.includes("products_create")) {
+        req.body.price = parseInt(req.body.price);
+        req.body.discountPercentage = parseInt(req.body.discountPercentage);
+        req.body.stock = parseInt(req.body.stock);
+        req.body.createdBy = res.locals.user.id;
+        req.body.createdAt = new Date();
+
+        req.body.deleted = false;
+
+        if (req.body.position) {
+            req.body.position = parseInt(req.body.position);
+        } else {
+            const countRecord = await Product.countDocuments();
+            req.body.position = countRecord + 1;
+        }
+
+        const record = new Product(req.body);
+        await record.save();
     }
-
-
-    if (!req.body.position) {
-        const countRecords = await Product.countDocuments();
-        req.body.position = countRecords + 1;
-    }
-
-
-    const productData = {
-        title: req.body.title,
-        description: req.body.description,
-        price: req.body.price ? parseFloat(req.body.price) : 0,
-        discountPercentage: req.body.discountPercentage ? parseFloat(req.body.discountPercentage) : 0,
-        stock: req.body.stock ? parseInt(req.body.stock) : 0,
-        thumbnail: req.body.thumbnail,
-        status: req.body.status,
-        position: req.body.position ? parseInt(req.body.position) : 0,
-        deleted: req.body.deleted ? (req.body.deleted === 'true' || req.body.deleted === true) : false
-    };
-
-    await Product.create(productData);
-    req.flash('success', 'Tạo mới thành công!');
     res.redirect(`/${systemConfig.prefixAdmin}/products`);
 }
 
@@ -89,6 +86,8 @@ module.exports.index = async (req, res) => {
         const sortValue = req.query.sortValue;
 
         sort[sortKey] = sortValue;
+    } else {
+        sort["position"] = "desc";
     }
     // End sort 
 
@@ -98,6 +97,34 @@ module.exports.index = async (req, res) => {
         .skip(skip)
         .sort(sort);
 
+
+    for (const item of products) {
+        // Tạo bởi
+        const infoCreated = await Account.findOne({
+            _id: item.createdBy
+        });
+        if (infoCreated) {
+            item.createdByFullName = infoCreated.fullName;
+        } else {
+            item.createdByFullName = "";
+        }
+        if (item.createdAt) {
+            item.createdAtFormat = moment(item.createdAt).format("HH:mm - DD/MM/YY");
+        }
+
+        // Cập nhật bởi
+        const infoUpdated = await Account.findOne({
+            _id: item.updatedBy
+        });
+        if (infoUpdated) {
+            item.updatedByFullName = infoUpdated.fullName;
+        } else {
+            item.updatedByFullName = "";
+        }
+        if (item.updatedAt) {
+            item.updatedAtFormat = moment(item.updatedAt).format("HH:mm - DD/MM/YY");
+        }
+    }
 
     res.render("admin/pages/products/index", {
         pageTitle: "Danh sách sản phẩm",
@@ -116,7 +143,9 @@ module.exports.changePosition = async (req, res) => {
     await Product.updateOne({
         _id: req.body.id
     }, {
-        position: req.body.position
+        position: req.body.position,
+        updatedBy: res.locals.user.id,
+        updatedAt: new Date()
     })
 
     req.flash('success', 'Đổi vị trí thành công!');
@@ -128,7 +157,9 @@ module.exports.changeStatus = async (req, res) => {
     await Product.updateOne({
         _id: req.body.id
     }, {
-        status: req.body.status
+        status: req.body.status,
+        updatedBy: res.locals.user.id,
+        updatedAt: new Date()
     });
 
 
@@ -148,7 +179,9 @@ module.exports.changeMulti = async (req, res) => {
             await Product.updateMany({
                 _id: req.body.ids
             }, {
-                status: req.body.status
+                status: req.body.status,
+                updatedBy: res.locals.user.id,
+                updatedAt: new Date()
             });
             req.flash('success', 'Đổi trạng thái thành công!');
             res.json({
@@ -160,7 +193,9 @@ module.exports.changeMulti = async (req, res) => {
             await Product.updateMany({
                 _id: req.body.ids
             }, {
-                deleted: true
+                deleted: true,
+                deletedBy: res.locals.user.id,
+                deletedAt: new Date()
             })
             req.flash('success', 'Xoá thành công!');
             res.json({ code: 'success', message: "Delete successfully!" });
@@ -188,7 +223,14 @@ module.exports.changeMulti = async (req, res) => {
 
 // Delete softly
 module.exports.delete = async (req, res) => {
-    await Product.updateOne({ _id: req.body.id }, { deleted: true });
+    await Product.updateOne({
+         _id: req.body.id 
+        }, { 
+            deleted: true,
+            deletedBy: res.locals.user.id,
+            deletedAt: new Date() 
+        }
+    );
 
 
     req.flash('success', 'Xoá thành công!');
@@ -221,31 +263,37 @@ module.exports.edit = async (req, res) => {
 
 // Edit 
 module.exports.editPatch = async (req, res) => {
-    const id = req.params.id;
-    req.body.price = parseInt(req.body.price);
-    req.body.discountPercentage = parseInt(req.body.discountPercentage);
-    req.body.stock = parseInt(req.body.stock);
-    if (req.body.position) {
-        req.body.position = parseInt(req.body.position);
+    if (res.locals.role.permissions.includes("products_edit")) {
+        const id = req.params.id;
+        req.body.price = parseInt(req.body.price);
+        req.body.discountPercentage = parseInt(req.body.discountPercentage);
+        req.body.stock = parseInt(req.body.stock);
+        req.body.updatedBy = res.locals.user.id;
+        req.body.updatedAt = new Date();
+        if (req.body.position) {
+            req.body.position = parseInt(req.body.position);
+        }
+        await Product.updateOne({
+            _id: id,
+            deleted: false
+        }, req.body);
+        req.flash("success", "Cập nhật thành công!");
+        res.redirect("back");
     }
-    await Product.updateOne({
-        _id: id,
-        deleted: false
-    }, req.body);
-    req.flash("success", "Cập nhật thành công!");
-    res.redirect("back");
 }
 // End edit
 
 
 module.exports.detail = async (req, res) => {
-    const id = req.params.id;
-    const product = await Product.findOne({
-        _id: id,
-        deleted: false
-    });
-    res.render("admin/pages/products/detail", {
-        pageTitle: "Chi tiết sản phẩm",
-        product: product
-    });
+    if (res.locals.role.permissions.includes("products_view")) {
+        const id = req.params.id;
+        const product = await Product.findOne({
+            _id: id,
+            deleted: false
+        });
+        res.render("admin/pages/products/detail", {
+            pageTitle: "Chi tiết sản phẩm",
+            product: product
+        });
+    }
 }

@@ -1,7 +1,7 @@
 const Account = require("../../models/account.model");
 const md5 = require("md5");
 
-const systemConfig  = require("../../config/system");
+const systemConfig = require("../../config/system");
 
 module.exports.login = async (req, res) => {
     res.render("admin/pages/auth/login", {
@@ -26,10 +26,10 @@ module.exports.loginPost = async (req, res) => {
     if (md5(password) != user.password) {
         req.flash("error", "Sai mật khẩu!");
         res.redirect("back");
-        return; 
+        return;
     }
 
-    if (user.status  != "active") {
+    if (user.status != "active") {
         req.flash("error", "Tài khoản đang bị khoá!");
         res.redirect("back");
         return;
@@ -37,5 +37,10 @@ module.exports.loginPost = async (req, res) => {
 
     res.cookie("token", user.token);
     res.redirect(`/${systemConfig.prefixAdmin}/dashboard`);
+}
+
+module.exports.logout = (req, res) => {
+    res.clearCookie("token");
+    res.redirect(`/${systemConfig.prefixAdmin}/auth/login`);
 }
 

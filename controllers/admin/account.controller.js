@@ -59,6 +59,7 @@ module.exports.edit = async (req, res) => {
     account: account
   });
 }
+
 module.exports.editPatch = async (req, res) => {
   await AccountModel.updateOne({
     _id: req.params.id,
@@ -78,6 +79,7 @@ module.exports.changePassword = async (req, res) => {
     account: account
   });
 }
+
 module.exports.changePasswordPatch = async (req, res) => {
   await AccountModel.updateOne({
     _id: req.params.id,
@@ -87,4 +89,10 @@ module.exports.changePasswordPatch = async (req, res) => {
   });
   req.flash("success", "Cập nhật mật khẩu thành công!");
   res.redirect(`/${systemConfig.prefixAdmin}/accounts`);
+}
+
+module.exports.myProfile = async (req, res) => {
+  res.render("admin/pages/accounts/my-profile", {
+    pageTitle: "Thông tin cá nhân"
+  });
 }

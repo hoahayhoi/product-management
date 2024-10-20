@@ -34,6 +34,9 @@ app.use(methodOverride('_method'));
 // Khai báo biến toàn cục cho file pug
 app.locals.prefixAdmin = systemConfig.prefixAdmin;
 
+// Khai báo biến toàn cục cho file js backend
+global._io = io;
+
 // parse application/json
 app.use(bodyParser.json());
 // parse application/x-www-form-urlencoded
@@ -49,9 +52,6 @@ app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce
 routeClient(app);
 routeAdmin(app);
 
-io.on("connection", (socket) => {
-  console.log("Có 1 user kết nối!", socket.id);
-});
 
 server.listen(port, () => {
   console.log(`App listening on port ${port}`);

@@ -4,7 +4,7 @@ var socket = io();
 
 // CLIENT_SEND_MESSAGE
 const formChat = document.querySelector(".chat .inner-form");
-if(formChat) {
+if (formChat) {
 
   const upload = new FileUploadWithPreview.FileUploadWithPreview('upload-images', {
     multiple: true,
@@ -16,7 +16,7 @@ if(formChat) {
 
     const content = formChat.content.value;
     const images = upload.cachedFileArray || [];
-    if(content || images.length > 0) {
+    if (content || images.length > 0) {
       const data = {
         content: content,
         images: images
@@ -39,16 +39,31 @@ socket.on("SERVER_RETURN_MESSAGE", (data) => {
 
   const div = document.createElement("div");
   let htmlFullName = "";
-  if(myId == data.userId) {
+  if (myId == data.userId) {
     div.classList.add("inner-outgoing");
   } else {
     div.classList.add("inner-incoming");
     htmlFullName = `<div class="inner-name">${data.fullName}</div>`;
   }
 
+  let htmlContent = "";
+  if(data.content) {
+    htmlContent = `
+      <div class="inner-content">${data.content}</div>
+    `;
+  }
+  let htmlImages = "";
+  if(data.images.length > 0) {
+    htmlImages += `<div class="inner-images">`;
+    for (const image of data.images) {
+      htmlImages += `<img src="${image}" />`;
+    }
+    htmlImages += `</div>`;
+  }
+  
   div.innerHTML = `
-    ${htmlFullName}
-    <div class="inner-content">${data.content}</div>
+    ${htmlContent}
+    ${htmlImages}
   `;
 
   const elementListTyping = document.querySelector(".chat .inner-list-typing");
@@ -61,14 +76,14 @@ socket.on("SERVER_RETURN_MESSAGE", (data) => {
 
 // Scroll Chat To Bottom
 const bodyChat = document.querySelector(".chat .inner-body");
-if(bodyChat) {
+if (bodyChat) {
   bodyChat.scrollTop = bodyChat.scrollHeight;
 }
 // End Scroll Chat To Bottom
 
 // Show Icon
 const emojiPicker = document.querySelector("emoji-picker");
-if(emojiPicker) {
+if (emojiPicker) {
   const buttonIcon = document.querySelector('.chat .inner-form .button-icon');
   const tooltip = document.querySelector('.tooltip');
 
@@ -95,15 +110,15 @@ if(emojiPicker) {
 
 // SERVER_RETURN_TYPING
 const elementListTyping = document.querySelector(".chat .inner-list-typing");
-if(elementListTyping) {
+if (elementListTyping) {
   socket.on("SERVER_RETURN_TYPING", (data) => {
-    if(data.type) {
+    if (data.type) {
       const existBoxTyping = elementListTyping.querySelector(`.box-typing[user-id="${data.userId}"]`);
-      if(!existBoxTyping) {
+      if (!existBoxTyping) {
         const boxTyping = document.createElement("div");
         boxTyping.classList.add("box-typing");
         boxTyping.setAttribute("user-id", data.userId);
-        
+
         boxTyping.innerHTML = `
           <div class="inner-name">${data.fullName}</div>
           <div class="inner-dots">
@@ -112,14 +127,14 @@ if(elementListTyping) {
             <span></span>
           </div>
         `;
-    
+
         elementListTyping.appendChild(boxTyping);
-        
+
         bodyChat.scrollTop = bodyChat.scrollHeight;
       }
     } else {
       const existBoxTyping = elementListTyping.querySelector(`.box-typing[user-id="${data.userId}"]`);
-      if(existBoxTyping) {
+      if (existBoxTyping) {
         elementListTyping.removeChild(existBoxTyping);
       }
     }

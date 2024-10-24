@@ -47,20 +47,20 @@ socket.on("SERVER_RETURN_MESSAGE", (data) => {
   }
 
   let htmlContent = "";
-  if(data.content) {
+  if (data.content) {
     htmlContent = `
       <div class="inner-content">${data.content}</div>
     `;
   }
   let htmlImages = "";
-  if(data.images.length > 0) {
+  if (data.images.length > 0) {
     htmlImages += `<div class="inner-images">`;
     for (const image of data.images) {
       htmlImages += `<img src="${image}" />`;
     }
     htmlImages += `</div>`;
   }
-  
+
   div.innerHTML = `
     ${htmlContent}
     ${htmlImages}
@@ -71,6 +71,7 @@ socket.on("SERVER_RETURN_MESSAGE", (data) => {
   socket.emit("CLIENT_SEND_TYPING", false);
 
   body.scrollTop = body.scrollHeight;
+  new Viewer(div);
 })
 // End SERVER_RETURN_MESSAGE
 
@@ -78,6 +79,9 @@ socket.on("SERVER_RETURN_MESSAGE", (data) => {
 const bodyChat = document.querySelector(".chat .inner-body");
 if (bodyChat) {
   bodyChat.scrollTop = bodyChat.scrollHeight;
+  // ViewerJS
+  new Viewer(bodyChat);
+  // End ViewerJS
 }
 // End Scroll Chat To Bottom
 

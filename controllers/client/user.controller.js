@@ -231,3 +231,50 @@ module.exports.notFriend = async (req, res) => {
       users: users
   });
 };
+
+module.exports.request = async (req, res) => { 
+  const userIdA = res.locals.user.id;
+  // Khi A gửi yêu cầu cho B
+  _io.once("connection", (socket) => {
+    socket.on("CLIENT_CANCEL_FRIEND", async (userIdB) => {
+      // Xoá Id của A trong accept friend của B
+      const existAInB = await User.findOne({
+        _id: userIdB,
+        acceptFriends: userIdA
+      });
+
+      if(existAInB) {
+        await User.updateOne({
+          _id: userIdB
+        }, {
+          $pull: { acceptFriends: userIdA }
+        });
+      }
+
+      // Xoá Id của B trong requestFriends của A 
+      const existBInA = await User.findOne({
+        _id: userIdA,
+        requestFriends: userIdB
+      });
+
+      if(existBInA) {
+        await User.updateOne({
+          _id: userIdA
+        }, {
+          $pull: { requestFriends: userIdB }
+        });
+      }
+    })
+  })
+
+  const users = await User.find({
+    _id: { $in: res.locals.user.requestFriends },
+    deleted: false,
+    status: "active"
+  }).select("id fullName avatar");
+
+  res.render("client/pages/user/request", {
+    pageTitle: "Lời mời đã gửi",
+    users: users
+  });
+}

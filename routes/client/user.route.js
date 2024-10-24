@@ -19,9 +19,15 @@ router.get("/password/reset", controller.resetPassword);
 router.post("/password/reset", controller.resetPasswordPost);
 
 router.get(
-    "/profile",
-    userMiddleware.requireAuth,
-    controller.profile
-  );
+  "/profile",
+  userMiddleware.requireAuth,
+  controller.profile
+);
+
+router.get(
+  "/not-friend",
+  userMiddleware.requireAuth,
+  controller.notFriend
+);
 
 module.exports = router;

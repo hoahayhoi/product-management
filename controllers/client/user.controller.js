@@ -18,7 +18,7 @@ module.exports.registerPost = async (req, res) => {
     deleted: false
   });
 
-  if(existUser) {
+  if (existUser) {
     req.flash("error", "Email đã tồn tại trong hệ thống!");
     res.redirect("back");
     return;
@@ -31,7 +31,7 @@ module.exports.registerPost = async (req, res) => {
     token: generateHelper.generateRandomString(30),
     status: "active"
   };
-  
+
   const newUser = new User(dataUser);
   await newUser.save();
 
@@ -55,23 +55,23 @@ module.exports.loginPost = async (req, res) => {
     email: email,
     deleted: false
   });
-  if(!existUser) {
+  if (!existUser) {
     req.flash("error", "Email không tồn tại trong hệ thống!");
     res.redirect("back");
     return;
   }
-  if(md5(password) != existUser.password) {
+  if (md5(password) != existUser.password) {
     req.flash("error", "Sai mật khẩu!");
     res.redirect("back");
     return;
   }
 
-  if(existUser.status != "active") {
+  if (existUser.status != "active") {
     req.flash("error", "Tài khoản đang bị khóa!");
     res.redirect("back");
     return;
   }
-  
+
   res.cookie("tokenUser", existUser.token);
   req.flash("success", "Đăng nhập thành công!");
 
@@ -98,7 +98,7 @@ module.exports.forgotPasswordPost = async (req, res) => {
     status: "active",
     deleted: false
   });
-  if(!existUser) {
+  if (!existUser) {
     req.flash("error", "Email không tồn tại!");
     res.redirect("back");
     return;
@@ -107,17 +107,17 @@ module.exports.forgotPasswordPost = async (req, res) => {
   const existEmailInForgotPassword = await ForgotPassword.findOne({
     email: email
   });
-  if(!existEmailInForgotPassword) {
+  if (!existEmailInForgotPassword) {
     const otp = generateHelper.generateRandomNumber(6);
     const data = {
       email: email,
       otp: otp,
-      expireAt: Date.now() + 5*60*1000
+      expireAt: Date.now() + 5 * 60 * 1000
     };
-  
+
     const record = new ForgotPassword(data);
     await record.save();
-  
+
     // Việc 2: Gửi mã OTP qua email cho user
     const subject = "Xác thực mã OTP";
     const text = `Mã xác thực của bạn là <b>${otp}</b>. Mã OTP có hiệu lực trong vòng 5 phút, vui lòng không cung cấp mã OTP cho bất kỳ ai.`;
@@ -141,7 +141,7 @@ module.exports.otpPasswordPost = async (req, res) => {
     email: email,
     otp: otp
   });
-  if(!existRecord) {
+  if (!existRecord) {
     req.flash("error", "Mã OTP không hợp lệ!");
     res.redirect("back");
     return;
@@ -191,7 +191,7 @@ module.exports.notFriend = async (req, res) => {
         acceptFriends: userIdA
       });
 
-      if(!existAInB) {
+      if (!existAInB) {
         await User.updateOne({
           _id: userIdB
         }, {
@@ -200,8 +200,8 @@ module.exports.notFriend = async (req, res) => {
       }
 
       // Thêm id của B vào requestFriend của A 
-      const existBInA  = await User.findOne({
-        _id: userIdA, 
+      const existBInA = await User.findOne({
+        _id: userIdA,
         requestFriends: userIdB
       });
 
@@ -209,34 +209,48 @@ module.exports.notFriend = async (req, res) => {
         await User.updateOne({
           _id: userIdA
         }, {
-          $push: {requestFriends: userIdB}
+          $push: { requestFriends: userIdB }
         });
       }
+
+      // Trả về cho B số lượng user cần chấp nhận
+      const userB = await User.findOne({
+        _id: userIdB,
+        deleted: false,
+        status: "active"
+      });
+
+      _io.emit("SERVER_RETURN_LENGTH_ACCEPT_FRIENDS", {
+        userIdB: userIdB,
+        length: userB.acceptFriends.length
+      })
     });
   });
+
+
 
   const friendsList = res.locals.user.friendsList;
   const friendsListId = friendsList.map(item => item.userId);
 
   const users = await User.find({
-      $and: [
-        {_id: { $ne: userIdA }},
-        { _id: { $nin: res.locals.user.requestFriends } },
-        { _id: { $nin: res.locals.user.acceptFriends } },
-        { _id: { $nin: friendsListId } }
-      ],
-      deleted: false,
-      status: "active"
+    $and: [
+      { _id: { $ne: userIdA } },
+      { _id: { $nin: res.locals.user.requestFriends } },
+      { _id: { $nin: res.locals.user.acceptFriends } },
+      { _id: { $nin: friendsListId } }
+    ],
+    deleted: false,
+    status: "active"
   }).select("id fullName avatar");
 
 
   res.render("client/pages/user/not-friend", {
-      pageTitle: "Danh sách người dùng",
-      users: users
+    pageTitle: "Danh sách người dùng",
+    users: users
   });
 };
 
-module.exports.request = async (req, res) => { 
+module.exports.request = async (req, res) => {
   const userIdA = res.locals.user.id;
   // Khi A huỷ gửi yêu cầu cho B
   _io.once("connection", (socket) => {
@@ -247,7 +261,7 @@ module.exports.request = async (req, res) => {
         acceptFriends: userIdA
       });
 
-      if(existAInB) {
+      if (existAInB) {
         await User.updateOne({
           _id: userIdB
         }, {
@@ -261,7 +275,7 @@ module.exports.request = async (req, res) => {
         requestFriends: userIdB
       });
 
-      if(existBInA) {
+      if (existBInA) {
         await User.updateOne({
           _id: userIdA
         }, {
@@ -283,7 +297,7 @@ module.exports.request = async (req, res) => {
   });
 }
 
-module.exports.accept = async (req, res) => { 
+module.exports.accept = async (req, res) => {
   const userIdA = res.locals.user.id;
   _io.once("connection", (socket) => {
     // Khi A từ chối kết bạn của B 
@@ -294,7 +308,7 @@ module.exports.accept = async (req, res) => {
         acceptFriends: userIdB
       });
 
-      if(existBInA) {
+      if (existBInA) {
         await User.updateOne({
           _id: userIdA
         }, {
@@ -308,7 +322,7 @@ module.exports.accept = async (req, res) => {
         requestFriends: userIdA
       });
 
-      if(existAInB){
+      if (existAInB) {
         await User.updateOne({
           _id: userIdB
         }, {
@@ -325,7 +339,7 @@ module.exports.accept = async (req, res) => {
         _id: userIdA,
         acceptFriends: userIdB
       });
-      if(existBInA) {
+      if (existBInA) {
         await User.updateOne({
           _id: userIdA
         }, {
@@ -345,7 +359,7 @@ module.exports.accept = async (req, res) => {
         _id: userIdB,
         requestFriends: userIdA
       });
-      if(existAInB) {
+      if (existAInB) {
         await User.updateOne({
           _id: userIdB
         }, {
@@ -362,7 +376,7 @@ module.exports.accept = async (req, res) => {
   });
 
   const users = await User.find({
-    _id: { $in: res.locals.user.acceptFriends }, 
+    _id: { $in: res.locals.user.acceptFriends },
     deleted: false,
     status: "active"
   }).select("id fullName avatar");

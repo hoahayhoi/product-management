@@ -179,6 +179,7 @@ module.exports.profile = async (req, res) => {
   });
 };
 
+//---------------------------------------------------------Chat ----------------------------------------------------
 module.exports.notFriend = async (req, res) => {
   const userIdA = res.locals.user.id;
 
@@ -226,8 +227,6 @@ module.exports.notFriend = async (req, res) => {
       })
     });
   });
-
-
 
   const friendsList = res.locals.user.friendsList;
   const friendsListId = friendsList.map(item => item.userId);
@@ -282,6 +281,18 @@ module.exports.request = async (req, res) => {
           $pull: { requestFriends: userIdB }
         });
       }
+
+      // Trả về cho B số lượng user cần chấp nhận
+      const userB = await User.findOne({
+        _id: userIdB,
+        deleted: false,
+        status: "active"
+      });
+
+      _io.emit("SERVER_RETURN_LENGTH_ACCEPT_FRIENDS", {
+        userIdB: userIdB,
+        length: userB.acceptFriends.length
+      })
     })
   })
 

@@ -75,6 +75,13 @@ module.exports.loginPost = async (req, res) => {
   }
 
   res.cookie("tokenUser", existUser.token);
+
+  await User.updateOne({
+    email: email
+  }, {
+    statusOnline: "online"
+  });
+
   req.flash("success", "Đăng nhập thành công!");
 
   res.redirect("/");
@@ -82,6 +89,12 @@ module.exports.loginPost = async (req, res) => {
 
 
 module.exports.logout = async (req, res) => {
+  await User.updateOne({
+    token: req.cookies.tokenUser
+  }, {
+    statusOnline: "offline"
+  });
+
   res.clearCookie("tokenUser");
   req.flash("success", "Đã đăng xuất!");
   res.redirect("/");
@@ -245,7 +258,7 @@ module.exports.friends = async (req, res) => {
     _id: { $in: friendsListId },
     deleted: false,
     status: "active"
-  }).select("id fullName avatar");
+  }).select("id fullName avatar statusOnline");
 
   res.render("client/pages/user/friends", {
     pageTitle: "Danh sách bạn bè",

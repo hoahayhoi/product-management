@@ -210,16 +210,6 @@ module.exports.changeMulti = async (req, res) => {
 }
 // End change status multi
 
-// // Delete permanent 
-// module.exports.delete = async (req, res) => {
-//     await Product.deleteOne({_id: req.body.id});
-
-//     res.json({
-//         code: "success", 
-//         mesage: "Xoá vĩnh viễn thành công!"
-//     }); 
-// }
-// // End delete permanent 
 
 // Delete softly
 module.exports.delete = async (req, res) => {

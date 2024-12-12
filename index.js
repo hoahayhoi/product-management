@@ -49,8 +49,8 @@ app.use(flash());
 // TinyMCE
 app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce')));
 
-routeClient(app);
 routeAdmin(app);
+routeClient(app);
 
 
 server.listen(port, () => {
